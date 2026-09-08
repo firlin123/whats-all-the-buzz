@@ -15,11 +15,31 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background-color: #000000;
+      background-image: linear-gradient(
+        135deg,
+        #f8b479 25%,
+        #885a79 25%,
+        #885a79 50%,
+        #f8b479 50%,
+        #f8b479 75%,
+        #885a79 75%
+      );
+      background-size: 120px 120px;
+      animation: moveStripes 3s linear infinite;
       display: flex;
       justify-content: center;
       align-items: center;
     }
+
+    @keyframes moveStripes {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 120px 0;
+      }
+    }
+
     img {
       width: 100vw;
       height: 100vh;
@@ -48,10 +68,32 @@
         "../img/3821932.png",
         "../img/vhdzwtku.png"
       ];
-      var selected = images[Math.floor(Math.random() * images.length)];
+
+      var lastIndex = null;
+      try {
+        var storedStr = localStorage.getItem('last_image_index');
+        if (storedStr !== null) {
+          lastIndex = parseInt(storedStr, 10);
+        }
+      } catch (e) {}
+
+      var availableIndices = [];
+      for (var i = 0; i < images.length; i++) {
+        if (images.length > 1 && i === lastIndex) {
+          continue;
+        }
+        availableIndices.push(i);
+      }
+
+      var selectedIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+
+      try {
+        localStorage.setItem('last_image_index', selectedIndex.toString());
+      } catch (e) {}
+
       var imgEl = document.getElementById('random-image');
       if (imgEl) {
-        imgEl.src = selected;
+        imgEl.src = images[selectedIndex];
       }
     })();
   </script>
