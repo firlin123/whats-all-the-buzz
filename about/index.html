@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>what's all the buzz about?</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #000000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    img {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      display: block;
+      border: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <img id="random-image" alt="Cherry Bee" referrerpolicy="no-referrer">
+
+  <script>
+    (function() {
+      var images = [
+        "https://derpicdn.net/img/view/2013/3/18/273798.png",
+        "https://derpicdn.net/img/view/2019/6/23/2072824.jpg",
+        "https://derpicdn.net/img/view/2019/11/16/2197995.png",
+        "https://derpicdn.net/img/2021/10/25/2731564/large.png",
+        "https://derpicdn.net/img/2024/11/1/3477593/large.png",
+        "https://derpicdn.net/img/view/2024/11/9/3483910.png",
+        "https://derpicdn.net/img/view/2026/2/23/3771284.png",
+        "https://derpicdn.net/img/view/2026/3/14/3782830.png",
+        "https://derpicdn.net/img/view/2026/5/20/3821932.png"
+      ];
+      var selected = images[Math.floor(Math.random() * images.length)];
+      var imgEl = document.getElementById('random-image');
+      if (imgEl) {
+        imgEl.src = selected;
+      }
+    })();
+  </script>
+</body>
+</html>

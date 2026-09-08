@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting...</title>
+  <script>
+    (function() {
+      var pathname = window.location.pathname;
+
+      // Do nothing if already on an 'about' path
+      if (pathname.endsWith('/about') || pathname.endsWith('/about/')) {
+        return;
+      }
+
+      // Determine the base path prefix (for github.io user site / repo subpath vs custom domain)
+      var isGithubIo = window.location.hostname.endsWith('.github.io');
+      var prefix = '/';
+
+      if (isGithubIo) {
+        var secondSlash = pathname.indexOf('/', 1);
+        if (secondSlash !== -1) {
+          prefix = pathname.substring(0, secondSlash + 1);
+        } else if (pathname.length > 1) {
+          prefix = pathname + '/';
+        }
+      }
+
+      var target = prefix + 'about/';
+      window.location.replace(target);
+    })();
+  </script>
+</head>
+<body>
+  <p>Redirecting to <a href="/about/">/about</a>...</p>
+</body>
+</html>
