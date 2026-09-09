@@ -156,8 +156,16 @@
     localStorage.setItem('last_image_ids', [groupIdx, subGroupIdx, itemIdx].join(','));
   } catch (e) { }
 
+  var selectedFileName = items[itemIdx];
+  var imageId = selectedFileName.substring(0, selectedFileName.lastIndexOf('.')).replace(/_\d+$/, '');
+
   var imgEl = document.getElementById('random-image');
   if (imgEl) {
-    imgEl.src = '../img/' + items[itemIdx];
+    imgEl.src = '../img/' + selectedFileName;
+  }
+
+  var sourceEl = document.getElementById('source-link');
+  if (sourceEl) {
+    sourceEl.href = 'https://derpibooru.org/images/' + imageId;
   }
 })();
