@@ -33,8 +33,8 @@
         },
         {
           name: "Princesses",
-          alts: ["Luna Bee", "Luna Bee", "Luna Bee", "Luna Bee", "Woona Bee", "Luna Bee", "Princess Beelestia", "Princess Beelestia"],
-          items: ["2936261.webp", "3807229_1.webp", "3807229_2.webp", "3810383.webp", "525722.webp", "5009.jpg", "1218329.webp", "3556383.jpg"]
+          alts: ["Luna Bee", "Luna Bee", "Luna Bee", "Woona Bee", "Luna Bee", "Princess Beelestia", "Princess Beelestia"],
+          items: ["2936261.webp", "3807229.webp", "3810383.webp", "525722.webp", "5009.jpg", "1218329.webp", "3556383.jpg"]
         },
         {
           name: "Bee Twilights",
