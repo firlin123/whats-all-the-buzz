@@ -122,6 +122,13 @@
     { id: "whats-all-the-buzz-about-7", name: "What's all the buzz about? 7", offset: 22.9, duration: 1.5 },
     { id: "whats-all-the-buzz-about-8", name: "What's all the buzz about? 8", offset: 25.1, duration: 2.1 }
   ];
+
+  var cherryBees = [
+    { src: '../img/cherry-bee-1.png', width: 35 },
+    { src: '../img/cherry-bee-2.png', width: 35 },
+    { src: '../img/cherry-bee-3.png', width: 48 }
+  ];
+  
   window.groups = groups;
 
   // Web Audio API Setup
@@ -212,7 +219,7 @@
     xhr.send();
   }
 
-  function playRandomSprite() {
+  function playRandomSprite(highPitched) {
     if (!AudioContextClass) return;
     ensureAudioCtx();
     if (audioCtx.state === 'suspended') {
@@ -221,15 +228,15 @@
 
     if (!audioBuffer) {
       loadAudio(function () {
-        playSprite();
+        playSprite(highPitched);
       });
       return;
     }
 
-    playSprite();
+    playSprite(highPitched);
   }
 
-  function playSprite() {
+  function playSprite(highPitched) {
     if (!audioBuffer || !audioCtx || !gainNode) return;
 
     var availableIndices = [];
@@ -247,6 +254,9 @@
 
     var source = audioCtx.createBufferSource();
     source.buffer = audioBuffer;
+    if (highPitched) {
+      source.playbackRate.value = 1.8;
+    }
     source.connect(gainNode);
     source.start(audioCtx.currentTime, sprite.offset, sprite.duration);
   }
@@ -357,4 +367,74 @@
     });
   }
   updateVolumeUI();
+
+  // Cherry Bees flying around the screen
+  function spawnCherryBees(numBees) {
+    var bees = [];
+
+    for (var i = 0; i < numBees; i++) {
+      var variant = cherryBees[Math.floor(Math.random() * cherryBees.length)];
+
+      var bee = document.createElement('img');
+      bee.src = variant.src;
+      bee.className = 'flying-bee';
+      bee.setAttribute('aria-hidden', 'true');
+      bee.style.cursor = 'pointer';
+      bee.style.width = variant.width + 'px';
+
+      bee.addEventListener('pointerdown', function (e) {
+        e.stopPropagation();
+        playRandomSprite(true);
+      });
+
+      document.body.appendChild(bee);
+
+      bees.push({
+        el: bee,
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        angle: Math.random() * Math.PI * 2,
+        speed: 1 + Math.random() * 1.5,
+        bobPhase: Math.random() * Math.PI * 2,
+        bobSpeed: 0.05 + Math.random() * 0.05
+      });
+    }
+
+    function animate() {
+      for (var i = 0; i < bees.length; i++) {
+        var b = bees[i];
+
+        b.angle += (Math.random() - 0.5) * 0.15;
+        var vx = Math.cos(b.angle) * b.speed;
+        var vy = Math.sin(b.angle) * b.speed;
+
+        b.x += vx;
+        b.y += vy;
+
+        if (b.x < 0 || b.x > window.innerWidth - 35) {
+          b.angle = Math.PI - b.angle;
+          b.x = Math.max(0, Math.min(b.x, window.innerWidth - 35));
+        }
+        if (b.y < 0 || b.y > window.innerHeight - 35) {
+          b.angle = -b.angle;
+          b.y = Math.max(0, Math.min(b.y, window.innerHeight - 35));
+        }
+
+        b.bobPhase += b.bobSpeed;
+        var bob = Math.sin(b.bobPhase) * 12;
+
+        var scaleX = vx < 0 ? -1 : 1;
+        var tilt = (vy * 6) * scaleX;
+
+        b.el.style.transform = 'translate(' + b.x + 'px, ' + (b.y + bob) + 'px) scaleX(' + scaleX + ') rotate(' + tilt + 'deg)';
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  var cherryBeeCount = Math.floor(Math.random() * 5) + 6;
+  spawnCherryBees(cherryBeeCount);
 })();

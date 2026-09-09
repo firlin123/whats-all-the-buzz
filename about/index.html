@@ -158,6 +158,16 @@
       border: none;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     }
+
+    .flying-bee {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 35px;
+      height: auto;
+      z-index: 500;
+      opacity: 0.9;
+    }
   </style>
 </head>
 
@@ -169,7 +179,8 @@
     <input type="range" id="volume-slider" min="0" max="100" value="100" step="1">
   </div>
 
-  <a id="source-link" class="source-btn" href="#" target="_blank" rel="noopener noreferrer" title="View source on Derpibooru">
+  <a id="source-link" class="source-btn" href="#" target="_blank" rel="noopener noreferrer"
+    title="View source on Derpibooru">
     <img src="../img/derpibooru.svg" alt="" aria-hidden="true">
     <span>Source</span>
   </a>
