@@ -128,9 +128,46 @@
   var AudioContextClass = window.AudioContext || window.webkitAudioContext;
   var audioCtx = null;
   var audioBuffer = null;
+  var gainNode = null;
   var isLoadingAudio = false;
   var pendingCallbacks = [];
   var lastSpriteIndex = null;
+
+  // Volume: 0.0–1.0, persisted in localStorage
+  var currentVolume = 1.0;
+  try {
+    var storedVol = localStorage.getItem('volume');
+    if (storedVol !== null) {
+      var parsed = parseFloat(storedVol);
+      if (!isNaN(parsed)) {
+        currentVolume = Math.max(0, Math.min(1, parsed));
+      }
+    }
+  } catch (e) { }
+
+  function ensureAudioCtx() {
+    if (!audioCtx && AudioContextClass) {
+      audioCtx = new AudioContextClass();
+      gainNode = audioCtx.createGain();
+      gainNode.gain.value = currentVolume;
+      gainNode.connect(audioCtx.destination);
+    }
+  }
+
+  function getVolumeIcon(vol) {
+    if (vol === 0) return '🔇';
+    if (vol < 0.34) return '🔈';
+    if (vol < 0.67) return '🔉';
+    return '🔊';
+  }
+
+  function updateVolumeUI() {
+    var iconEl = document.getElementById('volume-icon');
+    var sliderEl = document.getElementById('volume-slider');
+    if (iconEl) iconEl.textContent = getVolumeIcon(currentVolume);
+    if (sliderEl) sliderEl.value = Math.round(currentVolume * 100);
+    if (gainNode) gainNode.gain.value = currentVolume;
+  }
 
   function loadAudio(onReady) {
     if (audioBuffer) {
@@ -145,9 +182,7 @@
     }
     isLoadingAudio = true;
 
-    if (!audioCtx && AudioContextClass) {
-      audioCtx = new AudioContextClass();
-    }
+    ensureAudioCtx();
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '../sound/whats-all-the-buzz-about.m4a', true);
@@ -179,9 +214,7 @@
 
   function playRandomSprite() {
     if (!AudioContextClass) return;
-    if (!audioCtx) {
-      audioCtx = new AudioContextClass();
-    }
+    ensureAudioCtx();
     if (audioCtx.state === 'suspended') {
       audioCtx.resume();
     }
@@ -197,7 +230,7 @@
   }
 
   function playSprite() {
-    if (!audioBuffer || !audioCtx) return;
+    if (!audioBuffer || !audioCtx || !gainNode) return;
 
     var availableIndices = [];
     for (var i = 0; i < audioSprites.length; i++) {
@@ -214,7 +247,7 @@
 
     var source = audioCtx.createBufferSource();
     source.buffer = audioBuffer;
-    source.connect(audioCtx.destination);
+    source.connect(gainNode);
     source.start(audioCtx.currentTime, sprite.offset, sprite.duration);
   }
 
@@ -310,4 +343,18 @@
   if (sourceEl) {
     sourceEl.href = 'https://derpibooru.org/images/' + imageId;
   }
+
+  // Volume control
+  var sliderEl = document.getElementById('volume-slider');
+  if (sliderEl) {
+    sliderEl.value = Math.round(currentVolume * 100);
+    sliderEl.addEventListener('input', function () {
+      currentVolume = parseInt(this.value, 10) / 100;
+      updateVolumeUI();
+      try {
+        localStorage.setItem('volume', currentVolume.toString());
+      } catch (e) { }
+    });
+  }
+  updateVolumeUI();
 })();
