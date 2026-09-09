@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,19 +29,19 @@
       margin: 0;
       padding: 0;
     }
-    html, body {
+
+    html,
+    body {
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background-image: linear-gradient(
-        135deg,
-        #ecd974 25%,
-        #463a18 25%,
-        #463a18 50%,
-        #ecd974 50%,
-        #ecd974 75%,
-        #463a18 75%
-      );
+      background-image: linear-gradient(135deg,
+          #ecd974 25%,
+          #463a18 25%,
+          #463a18 50%,
+          #ecd974 50%,
+          #ecd974 75%,
+          #463a18 75%);
       background-size: 120px 120px;
       animation: moveStripes 3s linear infinite;
       display: flex;
@@ -52,6 +53,7 @@
       0% {
         background-position: 0 0;
       }
+
       100% {
         background-position: 120px 0;
       }
@@ -68,51 +70,10 @@
     }
   </style>
 </head>
+
 <body>
   <img id="random-image" alt="Cherry Bee" referrerpolicy="no-referrer">
-
-  <script>
-    (function() {
-      var images = [
-        "../img/273798.png",
-        "../img/2072824.jpg",
-        "../img/2197995.png",
-        "../img/2731564.png",
-        "../img/3477593.png",
-        "../img/3483910.png",
-        "../img/3771284.png",
-        "../img/3782830.png",
-        "../img/3821932.png",
-        "../img/vhdzwtku.png"
-      ];
-
-      var lastIndex = null;
-      try {
-        var storedStr = localStorage.getItem('last_image_index');
-        if (storedStr !== null) {
-          lastIndex = parseInt(storedStr, 10);
-        }
-      } catch (e) {}
-
-      var availableIndices = [];
-      for (var i = 0; i < images.length; i++) {
-        if (images.length > 1 && i === lastIndex) {
-          continue;
-        }
-        availableIndices.push(i);
-      }
-
-      var selectedIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
-
-      try {
-        localStorage.setItem('last_image_index', selectedIndex.toString());
-      } catch (e) {}
-
-      var imgEl = document.getElementById('random-image');
-      if (imgEl) {
-        imgEl.src = images[selectedIndex];
-      }
-    })();
-  </script>
+  <script src="../js/index.js"></script>
 </body>
+
 </html>
