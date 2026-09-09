@@ -108,7 +108,120 @@
       chanceMultiplier: 0.5
     }
   ];
+
+  var audioSprites = [
+    { id: "whats-all-the-buzz-about-1", name: "What's all the buzz about? 1", offset: 0.6, duration: 1.0 },
+    { id: "whats-all-the-buzz-about-2", name: "What's all the buzz about? 2", offset: 2.6, duration: 1.2 },
+    { id: "whats-all-the-buzz-about-3", name: "What's all the buzz about? 3", offset: 4.9, duration: 1.2 },
+    { id: "whats-all-the-buzz-about-4", name: "What's all the buzz about? 4", offset: 6.9, duration: 1.3 },
+    { id: "whats-all-the-buzz-about-5", name: "What's all the buzz about? 5", offset: 9.2, duration: 1.3 },
+    { id: "buzzzz", name: "Buzzzz", offset: 12.2, duration: 1.3 },
+    { id: "bee-1", name: "Bee!", offset: 14.2, duration: 1.0 },
+    { id: "b-is-for-bee", name: "B is for? Bee!", offset: 16.0, duration: 3.5 },
+    { id: "whats-all-the-buzz-about-6", name: "What's all the buzz about? 6", offset: 20.8, duration: 1.3 },
+    { id: "whats-all-the-buzz-about-7", name: "What's all the buzz about? 7", offset: 22.9, duration: 1.5 },
+    { id: "whats-all-the-buzz-about-8", name: "What's all the buzz about? 8", offset: 25.1, duration: 2.1 }
+  ];
   window.groups = groups;
+
+  // Web Audio API Setup
+  var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  var audioCtx = null;
+  var audioBuffer = null;
+  var isLoadingAudio = false;
+  var pendingCallbacks = [];
+  var lastSpriteIndex = null;
+
+  function loadAudio(onReady) {
+    if (audioBuffer) {
+      if (onReady) onReady();
+      return;
+    }
+    if (onReady) {
+      pendingCallbacks.push(onReady);
+    }
+    if (isLoadingAudio) {
+      return;
+    }
+    isLoadingAudio = true;
+
+    if (!audioCtx && AudioContextClass) {
+      audioCtx = new AudioContextClass();
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '../sound/whats-all-the-buzz-about.m4a', true);
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = function () {
+      if (xhr.status === 200 || xhr.status === 0) {
+        if (audioCtx) {
+          audioCtx.decodeAudioData(xhr.response, function (decoded) {
+            audioBuffer = decoded;
+            isLoadingAudio = false;
+            while (pendingCallbacks.length > 0) {
+              var cb = pendingCallbacks.shift();
+              try { cb(); } catch (e) { }
+            }
+          }, function (err) {
+            console.error('Audio decode error:', err);
+            isLoadingAudio = false;
+          });
+        }
+      } else {
+        isLoadingAudio = false;
+      }
+    };
+    xhr.onerror = function () {
+      isLoadingAudio = false;
+    };
+    xhr.send();
+  }
+
+  function playRandomSprite() {
+    if (!AudioContextClass) return;
+    if (!audioCtx) {
+      audioCtx = new AudioContextClass();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+
+    if (!audioBuffer) {
+      loadAudio(function () {
+        playSprite();
+      });
+      return;
+    }
+
+    playSprite();
+  }
+
+  function playSprite() {
+    if (!audioBuffer || !audioCtx) return;
+
+    var availableIndices = [];
+    for (var i = 0; i < audioSprites.length; i++) {
+      if (audioSprites.length > 1 && i === lastSpriteIndex) {
+        continue;
+      }
+      availableIndices.push(i);
+    }
+
+    var selectedIdx = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+    lastSpriteIndex = selectedIdx;
+
+    var sprite = audioSprites[selectedIdx];
+
+    var source = audioCtx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioCtx.destination);
+    source.start(audioCtx.currentTime, sprite.offset, sprite.duration);
+  }
+
+  // Pre-fetch audio sprite on initialization
+  try {
+    loadAudio();
+  } catch (e) { }
 
   function getWeightedIndex(list) {
     var totalWeight = 0;
@@ -187,6 +300,10 @@
   if (imgEl) {
     imgEl.src = '../img/' + selectedFileName;
     imgEl.alt = selectedAlt;
+    imgEl.style.cursor = 'pointer';
+    imgEl.addEventListener('click', function () {
+      playRandomSprite();
+    });
   }
 
   var sourceEl = document.getElementById('source-link');
